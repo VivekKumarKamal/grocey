@@ -31,7 +31,7 @@ class Product(db.Model):
     name = db.Column(db.String(30), nullable=False)
     unit = db.Column(db.String(30))
     price = db.Column(db.Float, nullable=False)
-    quantity = db.Column(db.Integer)
+    quantity = db.Column(db.Integer, nullable=False, default=0)
     listing_time = db.Column(db.DateTime, nullable=False, default=func.now())
 
     # relationship with Category, Order
