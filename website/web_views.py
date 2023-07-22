@@ -28,7 +28,14 @@ def sell():
         new_category_id = 1 if not new_category_id else new_category_id + 1
         categories = User.query.filter_by(id=current_user.id).first().categories
 
-        return render_template("seller_home.html", app_name=app_name, new_category_id=new_category_id, categories=categories)
+        new_prod_id = db.session.query(db.func.max(Product.id)).scalar()
+        new_prod_id = 1 if not new_prod_id else new_prod_id + 1
+
+        return render_template("seller_home.html",
+                               app_name=app_name,
+                               new_category_id=new_category_id,
+                               categories=categories,
+                               new_product_id=new_prod_id)
     flash("You are not a seller!", category='error')
     return redirect(url_for("web_views.home"))
 
@@ -48,6 +55,9 @@ def category(category_id):
             new_cat = Category(name=name, seller_id=current_user.id)
             db.session.add(new_cat)
             db.session.commit()
+            new_prod_id = db.session.query(db.func.max(Product.id)).scalar()
+            new_prod_id = 1 if not new_prod_id else new_prod_id + 1
+            return redirect(url_for('web_views.product'), category_id=new_cat.id, new_product_id=new_prod_id)
         else:
             cat.name = name
             db.session.commit()
@@ -59,7 +69,6 @@ def category(category_id):
     return render_template('/seller_functions/create_category.html',
                            app_name=app_name,
                            category_name=name,
-                           new_prod_id=new_prod_id,
                            category_id=category_id)
 
 
@@ -80,4 +89,5 @@ def product(cat_id, pro_id):
         db.session.add(new_prod)
         db.session.commit()
         return redirect(url_for('web_views.sell'))
-    return render_template('/seller_functions/create_product.html')
+    category_name = Category.query.filter_by(id=cat_id).first().name
+    return render_template('/seller_functions/create_product.html', app_name=app_name, category_name=category_name)
