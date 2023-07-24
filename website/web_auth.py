@@ -23,7 +23,7 @@ def sign_up():
         confirm_password = request.form.get('confirm_password')
         user = User.query.filter_by(user_name=user_name).first()
         if user:
-            flash("This user already exists. Log in or use a different user_name", category='error')
+            flash("This user already exists. Choose a different user_name", category='error')
         elif password != confirm_password:
             flash("Passwords aren't matching", category='error')
         elif len(password) < 5:

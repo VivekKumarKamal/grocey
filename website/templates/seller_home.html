@@ -1,15 +1,17 @@
+
 {% extends "web_base.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
 
 <br>
-<div align="center">
+<br>
+<div class="align-content-md-center">
     <a href="/seller/category/{{ new_category_id }}">
         <button class="btn btn-primary">
             Add a Category &#43;
         </button>
     </a>
-    </div>
+</div>
 <br>
 
 
@@ -21,18 +23,18 @@
                 <a href="/seller/category/{{ cat.id }}">
                     <button class="btn btn-outline-dark">Edit</button>
                 </a>
-                <a href="">
+                <a href="/delete-category/{{ cat.id }}">
                    <button class="btn btn-outline-danger">Delete</button>
                 </a>   
             </small>
         </li>
 
 
-        <div class="card-group card-group-scroll">
-            <div class="card align-middle" style="width: 1rem;">
+        <div class="card-group card-group-scroll card_group">
+            <div class="card align-middle">
                 <div class="card-body align-self-center">
                     <a href="/seller/{{ cat.id }}/product/{{ new_product_id }}">
-                        <svg svg xmlns="http://www.w3.org/2000/svg" width="4rem" viewBox="0 0 24 24"><path d="M11 11V7H13V11H17V13H13V17H11V13H7V11H11ZM12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20Z"></path></svg>
+                        <svg svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M11 11V7H13V11H17V13H13V17H11V13H7V11H11ZM12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 17.5228 17.5228 22 12 22ZM12 20C16.4183 20 20 16.4183 20 12C20 7.58172 16.4183 4 12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20Z"></path></svg>
                         <div class="footer">
                             Add Product
                         </div>
@@ -43,11 +45,20 @@
             {% for prod in cat.products %}
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">{{ prod.name }}</h5>
-                </div>
-                <div class="card-footer">
-                    <small class="text-muted">Last updated 3 mins ago</small>
-                </div>
+                    <h4 class="card-title">{{ prod.name }}</h4>
+                    <p> {{ prod.price }} Rs/{{ prod.unit }}</p>
+                    <p> Availabe: {{ prod.quantity }} {{ prod.unit }}</p>
+                    <p style="color: rgb(202, 29, 29);"> Expiry-Date: {{ prod.expiry_date }}</p>
+
+                    <small class="w-10">
+                        <a href="/seller/{{ cat.id }}/product/{{ prod.id }}">
+                            <button class="btn btn-outline-dark">Edit</button>
+                        </a>
+                        <a href="/delete-product/{{ prod.id }}">
+                           <button class="btn btn-outline-danger">Delete</button>
+                        </a>   
+                    </small>
+                </div>      
             </div>
             {% endfor %}
         </div>
@@ -55,5 +66,20 @@
         <hr>
         <br>
     {% endfor %}
+
+    <style>
+        
+
+        @media (min-width: 576px) {
+            .card-group.card-group-scroll {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+        }
+
+        .card-group.card-group-scroll > .card {
+            flex-basis: 35%;
+        }
+    </style>
 
 {% endblock %}

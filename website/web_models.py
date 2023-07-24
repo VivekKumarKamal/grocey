@@ -22,7 +22,7 @@ class Category(db.Model):
     seller_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     # relationship with Product, Order
-    products = db.relationship('Product')
+    products = db.relationship('Product', passive_deletes=True)
     orders = db.relationship('Order')
     
 
@@ -31,14 +31,15 @@ class Product(db.Model):
     name = db.Column(db.String(30), nullable=False)
     unit = db.Column(db.String(30))
     price = db.Column(db.Float, nullable=False)
-    quantity = db.Column(db.Integer, nullable=False, default=0)
+    quantity = db.Column(db.Integer, nullable=False)
+    expiry_date = db.Column(db.String(40), nullable=False)
     listing_time = db.Column(db.DateTime, nullable=False, default=func.now())
 
     # relationship with Category, Order
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
-    orders = db.relationship('Order', backref='product', passive_deletes=True)
-#
-#
+    orders = db.relationship('Order', backref='product')
+
+
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     quantity = db.Column(db.Integer)

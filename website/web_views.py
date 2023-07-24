@@ -57,11 +57,11 @@ def category(category_id):
             db.session.commit()
             new_prod_id = db.session.query(db.func.max(Product.id)).scalar()
             new_prod_id = 1 if not new_prod_id else new_prod_id + 1
-            return redirect(url_for('web_views.product'), category_id=new_cat.id, new_product_id=new_prod_id)
+            return redirect(f"/seller/{new_cat.id}/product/{new_prod_id}")
         else:
             cat.name = name
             db.session.commit()
-    
+            return redirect(url_for('web_views.sell'))
     name = cat.name if cat else ""
     new_prod_id = db.session.query(db.func.max(Product.id)).scalar()
     new_prod_id = 1 if not new_prod_id else new_prod_id + 1
@@ -79,15 +79,56 @@ def product(cat_id, pro_id):
     if not current_user.is_seller:
         flash("You can't access this page", category='error')
         return redirect(url_for('web_views.home', app_name=app_name))
+    product = Product.query.filter_by(id=pro_id).first()
     if request.method == 'POST':
         name = request.form.get('name')
         unit = request.form.get('unit')
         price = request.form.get('price')
         quantity = request.form.get('quantity')
+        expiry_date = request.form.get('expiry_date')
 
-        new_prod = Product(name=name, unit=unit, price=price, quantity=quantity, category_id=cat_id)
-        db.session.add(new_prod)
-        db.session.commit()
+        if not (name and unit and price and quantity and expiry_date):
+            flash("Fill all the details!", category='error')
+
+        if not product:
+            new_prod = Product(name=name, id=pro_id, unit=unit, price=price, quantity=quantity, category_id=cat_id, expiry_date=expiry_date)
+            db.session.add(new_prod)
+            db.session.commit()
+        else:
+            product.name = name
+            product.unit = unit
+            product.price = price
+            product.quantity = quantity
+            product.expiry_date = expiry_date
+
+            db.session.commit()
         return redirect(url_for('web_views.sell'))
     category_name = Category.query.filter_by(id=cat_id).first().name
-    return render_template('/seller_functions/create_product.html', app_name=app_name, category_name=category_name)
+    return render_template('/seller_functions/create_product.html', app_name=app_name, category_name=category_name, product=product)
+
+
+@views.route('/delete-category/<int:id>')
+@login_required
+def delete_category(id):
+    if current_user.is_seller:
+        cat = Category.query.filter_by(id=id).first()
+        if cat:
+            for prod in cat.products:
+                db.session.delete(prod)
+            db.session.delete(cat)
+            db.session.commit()
+            return redirect(url_for('web_views.sell'))
+    flash("You don't have permission to delete", category='error')
+    return redirect(url_for('web_views.home'))
+
+@views.route('/delete-product/<int:id>')
+@login_required
+def delete_product(id):
+    if current_user.is_seller:
+        prod = Product.query.filter_by(id=id).first()
+        if prod:
+            db.session.delete(prod)
+            db.session.commit()
+            return redirect(url_for('web_views.home'))
+    flash("You don't have permission to delete", category='error')
+    return redirect(url_for('web_views.home'))
