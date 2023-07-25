@@ -1,0 +1,60 @@
+
+{% extends "web_base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<br>
+<br>
+
+
+
+    {% for cat in categories %}
+        <li class="list-group-item d-flex justify-content-between">
+            <h2>{{ cat.name }} </h2>
+            <p>Products: {{ cat.products|length }}</p>
+        </li>
+
+
+        <div class="card-group card-group-scroll card_group">
+
+            {% for prod in cat.products %}
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">{{ prod.name }}</h4>
+                    <p> {{ prod.price }} Rs/{{ prod.unit }}</p>
+                    <p> Availabe: {{ prod.quantity }} {{ prod.unit }}</p>
+                    <p style="color: rgb(202, 29, 29);"> Expiry-Date: {{ prod.expiry_date }}</p>
+
+                    <small class="w-10">
+                        <a href="/add-to-cart/{{ prod.id }}">
+                            <button class="btn btn-outline-dark">Add to Cart</button>
+                        </a>
+                        <a href="/order/{{ prod.id }}">
+                           <button class="btn btn-primary">Buy Now</button>
+                        </a>
+                    </small>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <br>
+        <hr>
+        <br>
+    {% endfor %}
+
+    <style>
+
+
+        @media (min-width: 576px) {
+            .card-group.card-group-scroll {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+        }
+
+        .card-group.card-group-scroll > .card {
+            flex-basis: 35%;
+        }
+    </style>
+
+{% endblock %}

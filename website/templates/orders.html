@@ -1,0 +1,32 @@
+{% extends "web_base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<br>
+<br>
+    {% for order in orders %}
+        <li class="list-group-item d-flex justify-content-between">
+            <h2>{{ order.product.name }} </h2>
+            <p>Ordered on {{ order.order_time }}</p>
+        </li>
+
+        <hr>
+        <br>
+    {% endfor %}
+
+    <style>
+        
+
+        @media (min-width: 576px) {
+            .card-group.card-group-scroll {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+            }
+        }
+
+        .card-group.card-group-scroll > .card {
+            flex-basis: 35%;
+        }
+    </style>
+
+{% endblock %}

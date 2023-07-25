@@ -20,6 +20,7 @@ def create_app():
     from .web_models import Category
     from .web_models import Product
     from .web_models import Order
+    from .web_models import Cart
 
     from .web_views import views
     from .web_auth import auth

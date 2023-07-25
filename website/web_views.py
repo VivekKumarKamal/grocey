@@ -2,7 +2,7 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, login_required, current_user
 from . import db, app_name
-from .web_models import User, Category, Product, Order
+from .web_models import User, Category, Product, Order, Cart
 
 views = Blueprint('web_views', __name__)
 
@@ -10,9 +10,25 @@ views = Blueprint('web_views', __name__)
 @views.route('/')
 def home():
     if current_user.is_authenticated and current_user.is_seller:
-
         return redirect(url_for('web_views.sell'))
-    return render_template("web_base.html", app_name=app_name)
+    users = User.query.filter_by(is_seller=1).all()
+    categories = Category.query.filter_by(seller_id=users[0].id)
+    
+    return render_template("home.html", app_name=app_name, categories=categories)
+
+
+@views.route('/cart')
+def cart():
+    items = Cart.query.filter_by(user_id=current_user.id).all()
+
+    return render_template('cart.html', app_name=app_name, items=items)
+
+
+@views.route('/orders')
+def orders():
+    orders = Order.query.filter_by(user_id=current_user.id).all()
+
+    return render_template('orders.html', app_name=app_name, orders=orders)
 
 
 @views.route('/login')
@@ -31,7 +47,7 @@ def sell():
         new_prod_id = db.session.query(db.func.max(Product.id)).scalar()
         new_prod_id = 1 if not new_prod_id else new_prod_id + 1
 
-        return render_template("seller_home.html",
+        return render_template("/seller_functions/seller_home.html",
                                app_name=app_name,
                                new_category_id=new_category_id,
                                categories=categories,
@@ -132,3 +148,74 @@ def delete_product(id):
             return redirect(url_for('web_views.home'))
     flash("You don't have permission to delete", category='error')
     return redirect(url_for('web_views.home'))
+
+
+# ----------- User orders -------------
+
+
+@views.route('/add-to-cart/<int:id>')
+@login_required
+def add_to_cart(id):
+    product = Product.query.filter_by(id=id).first()
+    quantity_ordering = request.form.get('quantity')
+    quantity_ordering = 1
+
+    if product and product.quantity >= quantity_ordering:
+        new_item_in_cart = Cart(product_id=product.id, category_id=product.category_id, user_id=current_user.id, quantity=quantity_ordering)
+        db.session.add(new_item_in_cart)
+        db.session.commit()
+        flash('Added to Cart', category='success')
+        return redirect(url_for('web_views.home'))
+    flash("Product quantity not available", category='error')
+    return redirect(url_for('web_views.home'))
+
+
+@views.route('/remove-cart/<int:id>')
+@login_required
+def remove_cart(id):
+    cart = Cart.query.filter_by(id=id).first()
+
+    if cart:
+        db.session.delete(cart)
+        db.session.commit()
+        flash('Removed from Cart', category='success')
+        return redirect(url_for('web_views.cart'))
+    flash("Error", category='error')
+    return redirect(url_for('web_views.cart'))
+
+
+@views.route('/order/<int:id>')
+@login_required
+def order_a_item(id):
+    product = Product.query.filter_by(id=id).first()
+    quantity_ordering = request.form.get('quantity')
+    quantity_ordering = 1
+
+    if product and product.quantity >= quantity_ordering:
+        order = Order(product_id=product.id, category_id=product.category_id, user_id=current_user.id, quantity=quantity_ordering)
+        db.session.add(order)
+        db.session.commit()
+        flash('Product ordered successfully!', category='success')
+        return redirect(url_for('web_views.home'))
+    flash("Product quantity not available", category='error')
+    return redirect(url_for('web_views.home'))
+
+
+
+@views.route('/order-cart')
+@login_required
+def order_cart():
+    cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+
+    for item in cart_items:
+        product = Product.query.filter_by(id=item.product_id).first()
+
+        if product and product.quantity >= item.quantity:
+            order = Order(product_id=product.id, category_id=product.category_id, user_id=current_user.id, quantity=item.quantity)
+            db.session.add(order)
+            db.session.delete(item)
+    
+        db.session.commit()
+    flash('Product ordered successfully!', category='success')
+    return redirect(url_for('web_views.home'))
+

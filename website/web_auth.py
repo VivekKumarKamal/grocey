@@ -38,7 +38,7 @@ def sign_up():
             login_user(new_user, remember=True)
             return redirect(url_for('web_views.home', app_name=app_name))
 
-    return render_template('sign-up.html')
+    return render_template('sign-up.html', app_name=app_name)
 
 
 @auth.route('/user/login', methods=['GET', 'POST'])
@@ -68,7 +68,7 @@ def seller_login():
             return redirect(url_for('web_views.sell', app_name=app_name))
         else:
             flash("Incorrect username or password", category='error')
-    return render_template('seller_login.html', app_name=app_name)
+    return render_template('/seller_functions/seller_login.html', app_name=app_name)
 
 
 @auth.route('/seller/become-a-seller', methods=['GET', 'POST'])
@@ -95,7 +95,7 @@ def seller_sign_up():
             return redirect(url_for('web_views.sell', app_name=app_name))
             
 
-    return render_template('become_seller.html', app_name=app_name)
+    return render_template('/seller_fuctions/become_seller.html', app_name=app_name)
 
 
 @auth.route('/log-out')
