@@ -6,27 +6,15 @@
 <br>
     {% for order in orders %}
         <li class="list-group-item d-flex justify-content-between">
-            <h2>{{ order.product.name }} </h2>
-            <p>Ordered on {{ order.order_time }}</p>
+            <h5>{{ order.product.name }} </h5>
+            <h6>{{ order.quantity }}x</h6>
+            <h6>Rs. {{ order.ordered_price }}</h6>
+            <p>Ordered on: {{ order.order_time }}</p>
         </li>
 
         <hr>
         <br>
     {% endfor %}
 
-    <style>
-        
-
-        @media (min-width: 576px) {
-            .card-group.card-group-scroll {
-                overflow-x: auto;
-                flex-wrap: nowrap;
-            }
-        }
-
-        .card-group.card-group-scroll > .card {
-            flex-basis: 35%;
-        }
-    </style>
 
 {% endblock %}

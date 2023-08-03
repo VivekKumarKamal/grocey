@@ -8,31 +8,34 @@
 
 
 
-    {% for cat in categories %}
+    {% for cat in categories.keys() %}
         <li class="list-group-item d-flex justify-content-between">
             <h2>{{ cat.name }} </h2>
-            <p>Products: {{ cat.products|length }}</p>
         </li>
 
 
         <div class="card-group card-group-scroll card_group">
 
-            {% for prod in cat.products %}
+            {% for prod in categories[cat] %}
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title">{{ prod.name }}</h4>
+                    <p>Seller: <i>{{ prod.seller.user_name }}</i></p>
                     <p> {{ prod.price }} Rs/{{ prod.unit }}</p>
-                    <p> Availabe: {{ prod.quantity }} {{ prod.unit }}</p>
-                    <p style="color: rgb(202, 29, 29);"> Expiry-Date: {{ prod.expiry_date }}</p>
-
-                    <small class="w-10">
-                        <a href="/add-to-cart/{{ prod.id }}">
-                            <button class="btn btn-outline-dark">Add to Cart</button>
-                        </a>
-                        <a href="/order/{{ prod.id }}">
-                           <button class="btn btn-primary">Buy Now</button>
-                        </a>
-                    </small>
+                    {% if prod.quantity > 0 %}
+                        <p> Availabe: {{ prod.quantity }} {{ prod.unit }}</p>
+                        <p style="color: rgb(43, 46, 0);"> Expiry-Date: {{ prod.expiry_date }}</p>
+                        <small class="w-10">
+                            <a href="/add-to-cart/{{ prod.id }}">
+                                <button class="btn btn-outline-dark">Add to Cart</button>
+                            </a>
+                            <a href="/order/{{ prod.id }}">
+                            <button class="btn btn-primary">Buy Now</button>
+                            </a>
+                        </small>
+                    {% else %}
+                        <b style="color: brown;">Out of Stock</b>
+                    {% endif %}
                 </div>
             </div>
             {% endfor %}

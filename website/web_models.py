@@ -12,6 +12,8 @@ class User(db.Model, UserMixin):
     # relationship with category and orders
     categories = db.relationship('Category')
     orders = db.relationship('Order')
+    carts = db.relationship('Cart')
+    products = db.relationship('Product', backref='seller')
 
 
 class Category(db.Model):
@@ -38,13 +40,15 @@ class Product(db.Model):
 
     # relationship with Category, Order
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
+    seller_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     orders = db.relationship('Order', backref='product')
     carts = db.relationship('Cart', backref='product')
 
 
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    quantity = db.Column(db.Integer)
+    quantity = db.Column(db.Integer, nullable=False)
+    ordered_price = db.Column(db.Integer, nullable=False)
     order_time = db.Column(db.DateTime, default=func.now())
 #
 #     # Relationship with User

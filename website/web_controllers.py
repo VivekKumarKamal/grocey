@@ -12,16 +12,21 @@ def home():
     if current_user.is_authenticated and current_user.is_seller:
         return redirect(url_for('web_views.sell'))
     users = User.query.filter_by(is_seller=1).all()
-    categories = Category.query.filter_by(seller_id=users[0].id)
-    
+    categories = {}
+    cats = Category.query.filter_by(seller_id=users[0].id)
+    for a in cats:
+        categories[a] = Product.query.filter_by(category_id=a.id).order_by(Product.listing_time.desc())
     return render_template("home.html", app_name=app_name, categories=categories)
 
 
 @views.route('/cart')
 def cart():
     items = Cart.query.filter_by(user_id=current_user.id).all()
+    total_amount = 0
+    for i in items:
+        total_amount += i.product.price * i.quantity
 
-    return render_template('cart.html', app_name=app_name, items=items)
+    return render_template('cart.html', app_name=app_name, items=items, total_amount=total_amount)
 
 
 @views.route('/orders')
@@ -157,13 +162,17 @@ def delete_product(id):
 @login_required
 def add_to_cart(id):
     product = Product.query.filter_by(id=id).first()
-    quantity_ordering = request.form.get('quantity')
     quantity_ordering = 1
 
     if product and product.quantity >= quantity_ordering:
-        new_item_in_cart = Cart(product_id=product.id, category_id=product.category_id, user_id=current_user.id, quantity=quantity_ordering)
-        db.session.add(new_item_in_cart)
-        db.session.commit()
+        cart = Cart.query.filter_by(product_id=product.id).first()
+        if cart:
+            cart.quantity += 1
+            db.session.commit()
+        else:
+            new_item_in_cart = Cart(product_id=product.id, category_id=product.category_id, user_id=current_user.id, quantity=quantity_ordering)
+            db.session.add(new_item_in_cart)
+            db.session.commit()
         flash('Added to Cart', category='success')
         return redirect(url_for('web_views.home'))
     flash("Product quantity not available", category='error')
@@ -188,11 +197,12 @@ def remove_cart(id):
 @login_required
 def order_a_item(id):
     product = Product.query.filter_by(id=id).first()
-    quantity_ordering = request.form.get('quantity')
+    ordered_price = product.price
     quantity_ordering = 1
 
     if product and product.quantity >= quantity_ordering:
-        order = Order(product_id=product.id, category_id=product.category_id, user_id=current_user.id, quantity=quantity_ordering)
+        order = Order(product_id=product.id, category_id=product.category_id, user_id=current_user.id, quantity=quantity_ordering, ordered_price=ordered_price)
+        product.quantity -= quantity_ordering
         db.session.add(order)
         db.session.commit()
         flash('Product ordered successfully!', category='success')
@@ -211,11 +221,28 @@ def order_cart():
         product = Product.query.filter_by(id=item.product_id).first()
 
         if product and product.quantity >= item.quantity:
-            order = Order(product_id=product.id, category_id=product.category_id, user_id=current_user.id, quantity=item.quantity)
+            order = Order(product_id=product.id, category_id=product.category_id, user_id=current_user.id, ordered_price=product.price, quantity=item.quantity)
+            product.quantity -= item.quantity
             db.session.add(order)
             db.session.delete(item)
-    
-        db.session.commit()
-    flash('Product ordered successfully!', category='success')
+            db.session.commit()
+        else:
+            flash('Product/quantity not available', category='error')
+            return redirect(url_for('web_views.home'))
+    flash('Products ordered successfully!', category='success')
     return redirect(url_for('web_views.home'))
 
+
+@views.route('/search', methods=['GET', 'POST'])
+def search():
+    searched = request.form.get('search')
+    if not searched:
+        return redirect(url_for('web_views.home'))
+    lis = set(Product.query.filter(Product.name.like('%' + searched + '%')))
+    lis_by_category = list(Category.query.filter(Category.name.like('%' + searched + '%')))
+
+    for a in lis_by_category:
+        for prod in a.products:
+            lis.add(prod)
+
+    return render_template('search_results.html', searched=searched, products=lis, app_name=app_name)
