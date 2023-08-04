@@ -23,8 +23,8 @@
                 <a href="/seller/category/{{ cat.id }}">
                     <button class="btn btn-outline-dark">Edit</button>
                 </a>
-                <a href="/delete-category/{{ cat.id }}">
-                   <button class="btn btn-outline-danger">Delete</button>
+                <a onclick="deleteCategory({{ cat.id }})" class="btn btn-outline-danger">
+                    Delete
                 </a>   
             </small>
         </li>
@@ -47,15 +47,20 @@
                 <div class="card-body">
                     <h4 class="card-title">{{ prod.name }}</h4>
                     <p> {{ prod.price }} Rs/{{ prod.unit }}</p>
-                    <p> Availabe: {{ prod.quantity }} {{ prod.unit }}</p>
-                    <p style="color: rgb(202, 29, 29);"> Expiry-Date: {{ prod.expiry_date }}</p>
+                    {% if prod.quantity > 0 %}
+                        <p> Availabe: {{ prod.quantity }} {{ prod.unit }}</p>
+                        <p style="color: rgb(107, 100, 0);"> Expiry-Date: {{ prod.expiry_date }}</p>
+
+                    {% else %}
+                        <p style="color: rgb(201, 0, 0);"><b>Out of Stock</b></p>
+                    {% endif %}
 
                     <small class="w-10">
                         <a href="/seller/{{ cat.id }}/product/{{ prod.id }}">
                             <button class="btn btn-outline-dark">Edit</button>
                         </a>
-                        <a href="/delete-product/{{ prod.id }}">
-                           <button class="btn btn-outline-danger">Delete</button>
+                        <a type="Button" onclick="deleteProduct({{ prod.id }})" class="btn btn-outline-danger">
+                            Delete
                         </a>   
                     </small>
                 </div>      
@@ -68,8 +73,6 @@
     {% endfor %}
 
     <style>
-        
-
         @media (min-width: 576px) {
             .card-group.card-group-scroll {
                 overflow-x: auto;

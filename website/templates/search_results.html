@@ -10,19 +10,21 @@
     <div class="card">
         <div class="card-body">
             <h4 class="card-title">{{ prod.name }}</h4>
-            <p>Seller: <i>{{ prod.seller.user_name }}</i></p>
             <p> {{ prod.price }} Rs/{{ prod.unit }}</p>
+            <p style="color: rgb(43, 46, 0);"> Expiry-Date: {{ prod.expiry_date }}</p>
+
             {% if prod.quantity > 0 %}
                 <p> Availabe: {{ prod.quantity }} {{ prod.unit }}</p>
-                <p style="color: rgb(43, 46, 0);"> Expiry-Date: {{ prod.expiry_date }}</p>
-                <small class="w-10">
-                    <a href="/add-to-cart/{{ prod.id }}">
-                        <button class="btn btn-outline-dark">Add to Cart</button>
-                    </a>
-                    <a href="/order/{{ prod.id }}">
-                    <button class="btn btn-primary">Buy Now</button>
-                    </a>
-                </small>
+                {% if current_user.is_seller == False %}
+                    <small class="w-10">
+                        <a href="/add-to-cart/{{ prod.id }}">
+                            <button class="btn btn-outline-dark">Add to Cart</button>
+                        </a>
+                        <a href="/order/{{ prod.id }}">
+                        <button class="btn btn-primary">Buy Now</button>
+                        </a>
+                    </small>
+                {% endif %}
             {% else %}
                 <b style="color: brown;">Out of Stock</b>
             {% endif %}

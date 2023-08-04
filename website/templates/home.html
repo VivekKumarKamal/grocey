@@ -24,7 +24,7 @@
                     <p> {{ prod.price }} Rs/{{ prod.unit }}</p>
                     {% if prod.quantity > 0 %}
                         <p> Availabe: {{ prod.quantity }} {{ prod.unit }}</p>
-                        <p style="color: rgb(43, 46, 0);"> Expiry-Date: {{ prod.expiry_date }}</p>
+                        <p style="color: rgb(107, 100, 0);"> Expiry-Date: {{ prod.expiry_date }}</p>
                         <small class="w-10">
                             <a href="/add-to-cart/{{ prod.id }}">
                                 <button class="btn btn-outline-dark">Add to Cart</button>
@@ -34,7 +34,7 @@
                             </a>
                         </small>
                     {% else %}
-                        <b style="color: brown;">Out of Stock</b>
+                        <b style="color: rgb(201, 0, 0);">Out of Stock</b>
                     {% endif %}
                 </div>
             </div>

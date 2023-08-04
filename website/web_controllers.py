@@ -31,7 +31,7 @@ def cart():
 
 @views.route('/orders')
 def orders():
-    orders = Order.query.filter_by(user_id=current_user.id).all()
+    orders = Order.query.filter_by(user_id=current_user.id).order_by(Order.order_time.desc())
 
     return render_template('orders.html', app_name=app_name, orders=orders)
 
@@ -112,7 +112,7 @@ def product(cat_id, pro_id):
             flash("Fill all the details!", category='error')
 
         if not product:
-            new_prod = Product(name=name, id=pro_id, unit=unit, price=price, quantity=quantity, category_id=cat_id, expiry_date=expiry_date)
+            new_prod = Product(name=name, id=pro_id, unit=unit, price=price, quantity=quantity, category_id=cat_id, expiry_date=expiry_date, seller_id=current_user.id)
             db.session.add(new_prod)
             db.session.commit()
         else:
@@ -128,12 +128,16 @@ def product(cat_id, pro_id):
     return render_template('/seller_functions/create_product.html', app_name=app_name, category_name=category_name, product=product)
 
 
-@views.route('/delete-category/<int:id>')
+@views.route('/delete-category/<int:id>', methods=['POST'])
 @login_required
 def delete_category(id):
     if current_user.is_seller:
         cat = Category.query.filter_by(id=id).first()
         if cat:
+            carts = Cart.query.filter_by(product_id=cat.id).all()
+            for cart in carts:
+                db.session.delete(cart)
+                db.session.commit()
             for prod in cat.products:
                 db.session.delete(prod)
             db.session.delete(cat)
@@ -142,12 +146,16 @@ def delete_category(id):
     flash("You don't have permission to delete", category='error')
     return redirect(url_for('web_views.home'))
 
-@views.route('/delete-product/<int:id>')
+@views.route('/delete-product/<int:id>', methods=['POST'])
 @login_required
 def delete_product(id):
     if current_user.is_seller:
         prod = Product.query.filter_by(id=id).first()
         if prod:
+            carts = Cart.query.filter_by(product_id=prod.id).all()
+            for cart in carts:
+                db.session.delete(cart)
+                db.session.commit()
             db.session.delete(prod)
             db.session.commit()
             return redirect(url_for('web_views.home'))
@@ -201,7 +209,7 @@ def order_a_item(id):
     quantity_ordering = 1
 
     if product and product.quantity >= quantity_ordering:
-        order = Order(product_id=product.id, category_id=product.category_id, user_id=current_user.id, quantity=quantity_ordering, ordered_price=ordered_price)
+        order = Order(product_id=product.id, category_id=product.category_id, user_id=current_user.id, quantity=quantity_ordering, ordered_price=ordered_price, product_name=product.name)
         product.quantity -= quantity_ordering
         db.session.add(order)
         db.session.commit()
@@ -221,7 +229,7 @@ def order_cart():
         product = Product.query.filter_by(id=item.product_id).first()
 
         if product and product.quantity >= item.quantity:
-            order = Order(product_id=product.id, category_id=product.category_id, user_id=current_user.id, ordered_price=product.price, quantity=item.quantity)
+            order = Order(product_id=product.id, category_id=product.category_id, user_id=current_user.id, ordered_price=product.price, quantity=item.quantity, product_name=product.name)
             product.quantity -= item.quantity
             db.session.add(order)
             db.session.delete(item)

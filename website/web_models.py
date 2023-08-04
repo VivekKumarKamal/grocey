@@ -50,6 +50,7 @@ class Order(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     ordered_price = db.Column(db.Integer, nullable=False)
     order_time = db.Column(db.DateTime, default=func.now())
+    product_name = db.Column(db.String)
 #
 #     # Relationship with User
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
