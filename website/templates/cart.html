@@ -1,0 +1,36 @@
+{% extends "web_base.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<br>
+<br>
+
+{% if items| length > 0 %}
+<div class="align-content-md-center">
+    <b>{{ total_amount }}</b>
+    <a href="/order-cart">
+        <button class="btn btn-primary">
+            Order Now
+        </button>
+    </a>
+</div>
+<br>
+    {% for item in items %}
+        <li class="list-group-item d-flex justify-content-between">
+            <h2>{{ item.product.name }}</h2>
+            <p>{{ item.quantity }}<b>x</b></p>
+            <p>Rs.{{ item.product.price }}</p>
+            <small>
+                <a href="/remove-cart/{{ item.id }}">
+                   <button class="btn btn-outline-danger">Remove from Cart</button>
+                </a>   
+            </small>
+        </li>
+
+        <hr>
+        <br>
+    {% endfor %}
+{% else %}
+    <h4>Nothing is in here</h4>
+{% endif %}
+{% endblock %}

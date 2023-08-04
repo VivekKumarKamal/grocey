@@ -1,0 +1,79 @@
+{% extends "web_base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+
+
+<section>
+
+  <div class="container-fluid px-0">
+    <div class="row g-0 text-center vh-100">
+
+      <div class="align-self-center">
+        <h3 align="center">Add a new Product in <i>{{ category_name }} category</i></h3>
+          <br>
+        <div class="container">
+        <form action="" method="POST">
+            <div class="input-group mb-3">
+                <label for="name" class="input-group-text">Product Name:</label>
+                <input required type="text"
+                class="form-control"
+                name="name"
+                id="name"
+                placeholder="Mango"
+                value="{{ product.name }}"/>
+            </div>
+
+            <div class="input-group mb-3">
+              <label for="unit" class="input-group-text">Unit:</label>
+              <select class="custom-select form-control" id="unit" name="unit">
+                <option selected value="Units">Choose...</option>
+                <option value="Kg">Kg</option>
+                <option value="Gram">Gram</option>
+                <option value="Litre">Litre</option>
+                <option value="Dozen">Dozen</option>
+              </select>
+          </div>
+          
+
+          <div class="input-group mb-3">
+            <label for="price" class="input-group-text">Price:</label>
+            <input required  type="number"
+            class="form-control"
+            name="price"
+            id="price"
+            placeholder="39.99"
+            value="{{ product.price }}"/>
+          </div>
+
+          <div class="input-group mb-3">
+            <label for="quantity" class="input-group-text">Quantity:</label>
+            <input required type="quantity"
+            class="form-control"
+            name="quantity"
+            id="quantity"
+            placeholder="100"
+            value="{{ product.quantity }}"/>
+          </div>
+          
+          <div class="input-group mb-3">
+            <label for="quantity" class="input-group-text">Expiry-Date:</label>
+            <input required 
+            type="date"
+            class="form-control"
+            name="expiry_date"
+            id="expiry_date"
+            value="{{ product.expiry_date }}"/>
+          </div>
+
+            <br>
+            <button type="submit" class="btn btn-primary">Save</button>
+        </form>
+      </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+{% endblock %}
